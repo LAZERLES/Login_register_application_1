@@ -1,7 +1,7 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
+import '../config/app.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -13,6 +13,19 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
+
+  Future login() async {
+    final response = await http.post(
+      Uri.parse('$API_URL/login'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'email': _email.text,
+        'password': _password.text,
+      }),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +50,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 labelText: 'รหัสผ่าน',
               ),
             ),
+            const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: login,
               child: const Text('เข้าสู่ระบบ'),
             )
           ],
