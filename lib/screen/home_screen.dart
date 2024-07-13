@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_application_1/config/app.dart';
+import 'package:flutter_application_1/service/auth_service.dart';
+import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -11,6 +16,29 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  List<dynamic> banners = [];
+  Future<void> fetchBanner() async {
+    try {
+      final response = await http.get(Uri.parse("$API_URL/api/banners"));
+      final banners = jsonDecode(response.body);
+      print(banners);
+      setState(() {
+        this.banners = banners;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    AuthService.checkLogin().then((loggedIn) => {
+          if (loggedIn) {Navigator.of(context).pushReplacementNamed('/login')}
+        });
+    fetchBanner();
+  }
+
   List<String> sliders = [
     "image/slider1.jpg",
     "image/slider2.jpg",
@@ -47,8 +75,10 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Container(
         child: Swiper(
             autoplay: true,
-            itemCount: sliders.length,
-            itemBuilder: (context, index) => Image.asset(sliders[index])),
+            itemCount: banners.length,
+            itemBuilder: (context, index) {
+              return Image.network("$API_URL/${banners[index]['imageUrl']}");
+            }),
       ),
       bottomNavigationBar: BottomNavigationBar(
         showUnselectedLabels: true,

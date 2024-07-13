@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter_application_1/service/auth_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -28,7 +29,11 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    checkLogin();
+    AuthService.checkLogin().then((value) {
+      if (value) {
+        Navigator.of(context).pushReplacementNamed('/home');
+      }
+    });
   }
 
   Future<void> login() async {
